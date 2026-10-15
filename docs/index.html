@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartel láser · generador de SVG · miguelquiroga.es</title>
+<meta name="description" content="Crea carteles con texto (varias tipografías) y un emoji opcional, con agujeros de sujeción, y descárgalos en SVG listo para corte y grabado láser. Todo en el navegador.">
+<meta name="theme-color" content="#9a6bb4">
+<link rel="stylesheet" href="./style.css?v=1">
+</head>
+<body>
+
+<main class="wrap">
+  <h1>Cartel láser</h1>
+  <p class="subtitle">
+    Carteles con texto y un emoji opcional, con agujeros para colgarlos, en un SVG listo para cortar y grabar con láser:
+    el borde de corte va en rojo y el texto y el emoji en el color que elijas. Todo ocurre en tu navegador: no se sube nada a ningún servidor.
+  </p>
+
+  <div class="layout">
+    <div class="col-controls">
+
+      <div class="card">
+        <p class="card-label">Texto</p>
+        <label for="texto" class="note" style="margin:0 0 6px;display:block">Cada salto de línea es una línea nueva del cartel.</label>
+        <textarea id="texto" spellcheck="false" placeholder="Escribe aquí…">Biblioteca</textarea>
+        <div class="row"><label for="fontFamily">Tipografía</label><select id="fontFamily"></select></div>
+        <div class="check"><input type="checkbox" id="fontBold"><label for="fontBold">Negrita</label></div>
+        <div class="row"><label for="textSize">Tamaño de letra (mm)</label><input type="number" id="textSize" min="3" max="200" step="0.5"></div>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Emoji</p>
+        <div class="check"><input type="checkbox" id="emojiOn"><label for="emojiOn">Añadir un emoji</label></div>
+        <div id="emoji-panel" hidden>
+          <div class="emoji-current">
+            <span class="big" id="emoji-big" aria-hidden="true"></span>
+            <input type="text" id="emoji" maxlength="8" autocomplete="off" spellcheck="false" aria-label="Emoji (escríbelo o pégalo)" placeholder="Escribe o pega uno">
+          </div>
+          <div class="cat-tabs" id="cat-tabs" role="tablist" aria-label="Categorías de emojis"></div>
+          <div class="emoji-grid" id="emoji-grid" role="group" aria-label="Emojis"></div>
+          <p class="note" id="emoji-msg" role="status"></p>
+
+          <p class="card-label" style="margin-top:14px">Dónde va respecto al texto</p>
+          <div class="seg" id="emojiPos" role="radiogroup" aria-label="Posición del emoji">
+            <label><input type="radio" name="emojiPos" value="top" checked><span class="ico">⬆</span>Arriba</label>
+            <label><input type="radio" name="emojiPos" value="bottom"><span class="ico">⬇</span>Abajo</label>
+            <label><input type="radio" name="emojiPos" value="left"><span class="ico">⬅</span>Izquierda</label>
+            <label><input type="radio" name="emojiPos" value="right"><span class="ico">➡</span>Derecha</label>
+          </div>
+          <div class="row"><label for="emojiSize">Tamaño del emoji (mm)</label><input type="number" id="emojiSize" min="3" max="300" step="1"></div>
+          <div class="row"><label for="emojiWeight">Trazo del emoji</label>
+            <select id="emojiWeight"><option value="400">Fino</option><option value="700">Grueso</option></select></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Agujeros</p>
+        <div class="row"><label for="holes">Agujeros de sujeción</label>
+          <select id="holes">
+            <option value="none">Sin agujeros</option>
+            <option value="left">A la izquierda</option>
+            <option value="right">A la derecha</option>
+            <option value="both">En los dos lados</option>
+          </select></div>
+        <div class="row"><label for="holeDiameter">Tamaño del agujero (diámetro, mm)</label><input type="number" id="holeDiameter" min="1" max="50" step="0.5"></div>
+        <div class="row"><label for="holeInset">Distancia al borde (mm)</label><input type="number" id="holeInset" min="0" max="50" step="0.5"></div>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Colores</p>
+        <div class="row"><label for="color">Texto y emoji (grabado)</label><input type="color" id="color"></div>
+        <div class="check"><input type="checkbox" id="cutOther" checked><label for="cutOther">Borde de corte de otro color</label></div>
+        <div class="row" id="cutColorRow"><label for="colorCorte">Borde de corte y agujeros</label><input type="color" id="colorCorte"></div>
+        <p class="note">Por defecto, rojo para cortar y negro para grabar. Si desmarcas la casilla, todo sale del mismo color.</p>
+      </div>
+
+      <details class="card panel" id="settings-panel">
+        <summary>
+          <span class="card-label">Ajustes de la placa</span>
+          <span class="panel-hint">Medidas en mm</span>
+        </summary>
+        <div class="panel-body">
+          <div class="row"><label for="margin">Margen alrededor del contenido</label><input type="number" id="margin" min="0" max="100" step="0.5"></div>
+          <div class="row"><label for="gap">Separación texto-emoji</label><input type="number" id="gap" min="0" max="100" step="0.5"></div>
+          <div class="row"><label for="cornerRadius">Esquinas redondeadas</label><input type="number" id="cornerRadius" min="0" max="100" step="0.5"></div>
+          <div class="row"><label for="lineSpacing">Interlineado (× tamaño de letra)</label><input type="number" id="lineSpacing" min="0.8" max="3" step="0.05"></div>
+          <div class="row"><label for="anchoFijo">Ancho fijo (0 = automático)</label><input type="number" id="anchoFijo" min="0" max="1000" step="1"></div>
+          <div class="row"><label for="altoFijo">Alto fijo (0 = automático)</label><input type="number" id="altoFijo" min="0" max="1000" step="1"></div>
+          <p class="note">Con ancho o alto fijos, si el contenido no cabe se reduce solo. El borde de corte es una línea de 0,1 mm; texto y emoji son formas rellenas convertidas a trazados, así que no necesitas la letra instalada en el programa del láser.</p>
+          <button type="button" class="link" id="reset-btn">Restaurar valores por defecto</button>
+        </div>
+      </details>
+
+      <div class="actions">
+        <button class="btn primary" id="download-btn" type="button" disabled>Descargar SVG</button>
+      </div>
+      <div id="status" role="status">Cargando la letra…</div>
+    </div>
+
+    <div class="col-viewport">
+      <div class="viewport-card">
+        <div id="svg-holder" aria-live="polite"></div>
+        <div id="stats"></div>
+      </div>
+      <div id="avisos" role="status"></div>
+    </div>
+  </div>
+</main>
+
+<footer class="foot">
+  <p>Hecho con ♥ para el aula · <a href="https://miguelquiroga.es">miguelquiroga.es</a></p>
+  <p class="foot-note">Letras: Atkinson Hyperlegible, Lexend, Nunito, Comic Neue, Montserrat, Oswald, Playfair Display, Roboto Slab, Bebas Neue, Pacifico, Lobster, Caveat, Permanent Marker, Fredoka y Noto Emoji (SIL OFL); DejaVu (licencia libre).</p>
+</footer>
+
+<script type="importmap">
+{
+  "imports": {
+    "opentype.js": "https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.module.js"
+  }
+}
+</script>
+<script type="module" src="./app.js?v=1"></script>
+</body>
+</html>
